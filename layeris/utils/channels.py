@@ -12,12 +12,13 @@ def split_image_into_channels(image):
     red_channel = image[:, :, 0]
     green_channel = image[:, :, 1]
     blue_channel = image[:, :, 2]
-    return red_channel, green_channel, blue_channel
+    alpha_channel = image[:, :, 3]
+    return red_channel, green_channel, blue_channel, alpha_channel
 
 
-def merge_channels(red, green, blue):
+def merge_channels(red, green, blue, alpha):
     """Merge channels back into an image"""
-    return np.stack([red, green, blue], axis=2)
+    return np.stack([red, green, blue, alpha], axis=2)
 
 
 def channel_adjust(channel, values):
