@@ -5,23 +5,23 @@ import requests
 import numpy as np
 import matplotlib
 import json
-from .utils.conversions import convert_uint_to_float, convert_float_to_uint, round_to_uint, get_rgb_float_if_hex, get_array_from_hex
-from .utils.layers import mix
-from .utils.channels import split_image_into_channels, merge_channels, channel_adjust
+from utils.conversions import convert_uint_to_float, convert_float_to_uint, round_to_uint, get_rgb_float_if_hex, get_array_from_hex
+from utils.layers import mix
+from utils.channels import split_image_into_channels, merge_channels, channel_adjust
 
 
 class LayerImage():
     @staticmethod
     def from_url(url):
         response = requests.get(url)
-        image = Image.open(BytesIO(response.content))
+        image = Image.open(BytesIO(response.content)).convert('RGBA')
         image_data = convert_uint_to_float(np.asarray(image))
 
         return LayerImage(image_data)
 
     @staticmethod
     def from_file(file_path):
-        image = Image.open(file_path)
+        image = Image.open(file_path).convert('RGBA')
         image_data = convert_uint_to_float(np.asarray(image))
 
         return LayerImage(image_data)
@@ -257,8 +257,8 @@ class LayerImage():
 
         return self
 
-    def curve(self, channels='rgb', curve_points=[0, 1]):
-        r, g, b = split_image_into_channels(self.image_data)
+    def curve(self, channels='rgba', curve_points=[0, 1]):
+        r, g, b, a = split_image_into_channels(self.image_data)
 
         if 'r' in channels:
             r = channel_adjust(r, curve_points)
@@ -266,8 +266,10 @@ class LayerImage():
             g = channel_adjust(g, curve_points)
         if 'b' in channels:
             b = channel_adjust(b, curve_points)
+        if 'a' in channels:
+            a = channel_adjust(a, curve_points)
 
-        self.image_data = merge_channels(r, g, b)
+        self.image_data = merge_channels(r, g, b, a)
 
         return self
 
